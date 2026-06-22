@@ -1,160 +1,120 @@
 ## Samples ##
 
-The following samples are provided to demonstrate usage of the API.
+These samples are provided to demonstrate usage of the API. All samples are designed to be run as single file source code programs, without a separate compile step.
 
-### [ListEntry](#listentryjava)
+See [README.md](./README.md) for more detail on how to run the programs.
 
-List details of any entry from the SMP/E CSI by entry name.
+| Sample | Description |
+|--------|-------------|
+| [ListEntry](#listentry) | List details of any entry from the SMP/E CSI by entry name. |
+| [ListFeatures](#listfeatures) | List the feature names, FMIDs and FMID descriptions known to SMP/E. |
+| [ListFmid](#listfmid) | List FMIDs, installed date and description for FMIDs installed in a target zone. |
+| [FmidByDescription](#fmidbydescription) | Find FMIDs with descriptions matching a search string. |
+| [ListUsermods](#listusermods) | List details of usermods known to SMP/E. |
+| [ListUmid](#listumid) | Find elements with UMID entries, to better understand the relationship and usage of UMID and RMID. |
+| [MaintenanceByDate](#maintenancebydate) | List APARs and PTFs installed in the target zone, grouped by install date and FMID. |
+| [ElementsByMaintenanceLevel](#elementsbymaintenancelevel) | List elements for an FMID grouped by effective maintenance level (RMID plus UMIDs). |
+| [ResolvedHfsPaths](#resolvedhfspaths) | List HFS elements and links with the full paths resolved from DDDEFs and relative paths. |
+| [HfsEntriesWithScripts](#hfsentrieswithscripts) | List HFS entries which run scripts during installation. |
+| [ListHolddata](#listholddata) | Attempt to streamline reviewing HOLDDATA. |
+| **SMP/E Information to JSON** | |
+| [MaintenanceLevel2Json](#maintenancelevel2json) | Create JSON with information about the maintenance level of elements in the target zone. |
+| [Holddata2Json](#holddata2json) | Create JSON with Holddata information for sysmods installed after a specified date. |
+| [InstalledSysmods2Json](#installedsysmods2json) | Create JSON with information on all sysmods installed in the target zone. Superseded sysmods show superseding sysmods and the dates they were installed. |
 
-### [ListFeatures](#listfeaturesjava)
+## Details of Samples
 
-List the feature names, FMIDs and FMID descriptions known to SMP/E.
-
-### [ListFmid](#listfmidjava)
-
-List FMIDs, installed date and description for FMIDs installed in a target zone.
-
-### [ListUsermods](#listusermodsjava)
-
-List details of usermods known to SMP/E.
-
-### [ListUmid](#listumidjava)
-
-Find elements with UMID entries, to better understand the relationship and usage of UMID and RMID.
-
-### [MaintenanceByDate](#maintenancebydatejava)
-
-List APARs and PTFs installed in the target zone, grouped by install date and FMID.
-
-### [ElementsByMaintenanceLevel](#elementsbymaintenanceleveljava)
-
-List elements for an FMID grouped by effective maintenance level (RMID plus UMIDs).
-
-### [ResolvedHfsPaths](#resolvedhfspathsjava)
-
-List HFS elements and links with the full paths resolved from DDDEFs and relative paths.
-
-### [HfsEntriesWithScripts](#hfsentrieswithscriptsjava)
-
-List HFS entries which run scripts during installation.
-
-### [ListHolddata](#listholddatajava)
-
-Attempt to streamline reviewing HOLDDATA.
-
-## SMP/E Information to JSON
-
-### [MaintenanceLevel2Json](#maintenancelevel2jsonjava)
-
-Create JSON with information about the maintenance level of elements in the target zone.
-
-### [Holddata2Json](#holddata2jsonjava)
-
-Create JSON with Holddata information for sysmods installed after a specified date.
-
-### [InstalledSysmods2Json](#installedsysmods2jsonjava)
-
-Create JSON with information on all sysmods installed in the target zone. Superseded sysmods show superseding sysmods and the dates they were installed.
-
-## Detailed Descriptions
-
-More detail on each report with command syntax and sample output.
-
-### ListEntry.java
+### ListEntry
 
 Source: [ListEntry.java](./java/ListEntry.java)
 
 List details of any entry from the SMP/E CSI by entry name.
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar ListEntry.java MVS.GLOBAL.CSI IEFBR14
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar ListEntry.java MVS.GLOBAL.CSI IEFBR14
 ```
 ```
+ENTRYNAME : IEFBR14
 ENTRYTYPE : LMOD
-  ENTRYNAME : IEFBR14
-  ENTRYTYPE : LMOD
-    ZONENAME : MVSD
-    COPIED : NO
-    LASTUPD : HBB77E0
-    LASTUPDTYPE : ADD
-    LEPARM : RENT,NCAL
-    RC : 0
-    SYSLIB :
-      LINKLIB
-      LPALIB
-    XZMODP : NO
-  ENTRYNAME : IEFBR14
-  ENTRYTYPE : LMOD
-    ZONENAME : MVST
-    COPIED : NO
-    LASTUPD : HBB77E0
-    LASTUPDTYPE : ADD
-    LEPARM : RENT,NCAL
-    RC : 0
-    SYSLIB :
-      LINKLIB
-      LPALIB
-    XZMODP : NO
+  ZONENAME : MVSD
+  COPIED : NO
+  LASTUPD : HBB77E0
+  LASTUPDTYPE : ADD
+  LEPARM : RENT,NCAL
+  RC : 0
+  SYSLIB :
+    LINKLIB
+    LPALIB
+  XZMODP : NO
+ENTRYNAME : IEFBR14
+ENTRYTYPE : LMOD
+  ZONENAME : MVST
+  COPIED : NO
+  LASTUPD : HBB77E0
+  LASTUPDTYPE : ADD
+  LEPARM : RENT,NCAL
+  RC : 0
+  SYSLIB :
+    LINKLIB
+    LPALIB
+  XZMODP : NO
+ENTRYNAME : IEFBR14
 ENTRYTYPE : MOD
-  ENTRYNAME : IEFBR14
-  ENTRYTYPE : MOD
-    ZONENAME : MVSD
-    ASSEMBLE : NO
-    CSECT : IEFBR14
-    DISTLIB : AOSB3
-    FMID : HBB77E0
-    LASTUPD : HBB77E0
-    LASTUPDTYPE : ADD
-    LEPARM : RENT,REFR,NCAL
-    LMOD :
-      IEANUC11
-      IEAVEDAT
-      IEFBR14
-    RMID : HBB77E0
-    RMIDASM : NO
-    XZLMODP : NO
-  ENTRYNAME : IEFBR14
-  ENTRYTYPE : MOD
-    ZONENAME : MVST
-    ASSEMBLE : NO
-    CSECT : IEFBR14
-    DISTLIB : AOSB3
-    FMID : HBB77E0
-    LASTUPD : HBB77E0
-    LASTUPDTYPE : ADD
-    LMOD :
-      IEANUC11
-      IEAVEDAT
-      IEFBR14
-    RMID : HBB77E0
-    RMIDASM : NO
-    XZLMODP : NO
+  ZONENAME : MVSD
+  ASSEMBLE : NO
+  CSECT : IEFBR14
+  DISTLIB : AOSB3
+  FMID : HBB77E0
+  LASTUPD : HBB77E0
+  LASTUPDTYPE : ADD
+  LEPARM : RENT,REFR,NCAL
+  LMOD :
+    IEANUC11
+    IEAVEDAT
+    IEFBR14
+  RMID : HBB77E0
+  RMIDASM : NO
+  XZLMODP : NO
+ENTRYNAME : IEFBR14
+ENTRYTYPE : MOD
+  ZONENAME : MVST
+  ASSEMBLE : NO
+  CSECT : IEFBR14
+  DISTLIB : AOSB3
+  FMID : HBB77E0
+  LASTUPD : HBB77E0
+  LASTUPDTYPE : ADD
+  LMOD :
+    IEANUC11
+    IEAVEDAT
+    IEFBR14
+  RMID : HBB77E0
+  RMIDASM : NO
+  XZLMODP : NO
 ```
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar ListEntry.java MVS.GLOBAL.CSI LPALIB
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar ListEntry.java MVS.GLOBAL.CSI LPALIB
 ```
 ```
+ENTRYNAME : LPALIB
 ENTRYTYPE : DDDEF
-  ENTRYNAME : LPALIB
-  ENTRYTYPE : DDDEF
-    ZONENAME : MVST
-    DATASET : SYS1.LPALIB
-    INITDISP : SHR
-    PROTECT : NO
-    UNIT : SYSALLDA
-    VOLUME : VIMVSB
-    WAITFORDSN : NO
+  ZONENAME : MVST
+  DATASET : SYS1.LPALIB
+  INITDISP : SHR
+  PROTECT : NO
+  UNIT : SYSALLDA
+  VOLUME : VIMVSB
+  WAITFORDSN : NO
 ```
 
-
-### ListFeatures.java
+### ListFeatures
 
 Source: [ListFeatures.java](./java/ListFeatures.java)
 
 List the feature names, FMIDs and FMID descriptions known to SMP/E.
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar ListFeatures.java MVS.GLOBAL.CSI
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar ListFeatures.java MVS.GLOBAL.CSI
 ```
 
 ```
@@ -197,7 +157,7 @@ IZOBB310   5655-ZOS,03.01.00    z/OS V3 Base
 ...   
 ```
 
-### ListFmid.java
+### ListFmid
 
 Source: [ListFmid.java](./java/ListFmid.java)
 
@@ -240,28 +200,55 @@ HJE77E0    2023-06-02     JES2 BASE
 ...
 ```
 
-### ListUsermods.java
+### FmidByDescription
+
+Source: [FmidByDescription.java](./java/FmidByDescription.java)
+
+Find FMIDs with descriptions matching a search string, across all zones.
+
+```
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar FmidByDescription.java MVS.GLOBAL.CSI crypt
+```
+```
+Zone: MVSD
+HCF773D installed 2023-10-13 Encryption Facility DFSMSdss Encryption
+HCF7740 installed 2023-10-13 Encryption Facility Encrypt Ser
+HCPT510 installed 2023-04-12 Cryptographic Services - System SSL Base
+HCR77E0 installed 2023-04-12 Cryptographic Support - ICSF
+HKY77E0 installed 2023-06-02 Cryptographic Services - PKI Services
+JCPT51J installed 2023-06-12 Cryptographic Services - System SSL JPN
+
+Zone: MVST
+HCF773D installed 2023-10-13 Encryption Facility DFSMSdss Encryption
+HCF7740 installed 2023-10-13 Encryption Facility Encrypt Ser
+HCPT510 installed 2023-04-12 Cryptographic Services - System SSL Base
+HCR77E0 installed 2023-04-12 Cryptographic Support - ICSF
+HKY77E0 installed 2023-06-02 Cryptographic Services - PKI Services
+JCPT51J installed 2023-06-12 Cryptographic Services - System SSL JPN
+```
+
+### ListUsermods
 
 Source: [ListUsermods.java](./java/ListUsermods.java)
 
 List details of usermods known to SMP/E.
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar ListUsermods.java MVS.GLOBAL.CSI
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar ListUsermods.java MVS.GLOBAL.CSI
 ```
 
 ```
 GIM32000W    NO ENTRIES MATCHING THE SPECIFIED CRITERIA WERE FOUND.
 ```
 
-### ListUmid.java
+### ListUmid
 
 Source: [ListUmid.java](./java/ListUmid.java)
 
 Find elements with UMID entries, to help understand the relationship and usage of UMID and RMID.
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar ListUmid.java MVS.GLOBAL.CSI MVST
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar ListUmid.java MVS.GLOBAL.CSI MVST
 ```
 ```
 ...
@@ -296,14 +283,14 @@ ENTRYTYPE : SRC
 ...
 ```
 
-### MaintenanceByDate.java
+### MaintenanceByDate
 
 Source: [MaintenanceByDate.java](./java/MaintenanceByDate.java)
 
 List APARs and PTFs installed in the target zone, grouped by install date and FMID. For each date, the FMID, FMID description and list of PTFs is printed.
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar MaintenanceByDate.java MVS.GLOBAL.CSI MVST 2026-05-01
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar MaintenanceByDate.java MVS.GLOBAL.CSI MVST 2026-05-01
 ```
 
 ```
@@ -336,7 +323,7 @@ HDZ3310  Data Facility System Managed Storage Base & ENU
 ```
 
 
-### ElementsByMaintenanceLevel.java
+### ElementsByMaintenanceLevel
 
 Source: [ElementsByMaintenanceLevel.java](./java/ElementsByMaintenanceLevel.java)
 
@@ -345,43 +332,51 @@ List elements for an FMID grouped by effective maintenance level (RMID plus UMID
 You can find an element in the report and see the current maintenance level when it was installed, other elements updated by the same maintenance or on the same day etc.
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar ElementsByMaintenanceLevel.java MVS.GLOBAL.CSI MVST HJE77E0
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar ElementsByMaintenanceLevel.java MVS.GLOBAL.CSI MVST HZFS510
 ```
 
 ```
-...
-2024-10-10   UJ95851
+2026-05-14   UJ99436
 ==========
-    MAC
-        $CIRWORK  $PCYWORK
-    SRC
-        HASMCKW   HASMPCE1  HASMPCE4  HASPCKDS  HASPIRMA
+    PROGRAM
+        IOEAGFMT  IOEAGSLV  IOEDUMPF  IOEFSCM   IOEFSKN   IOEFSTHD
+        IOEFSUTL  IOEZADM
 
-2024-10-10   UJ95851
-2023-09-11   UJ93156   UJ93426
-2023-06-02   UJ92698
+2026-04-16   UJ99111
 ==========
-    SRC
-        HASPIRSI
-...
+    PROGRAM
+        IDFDUMPF  IDFFSCM   IDFFSKN   IDFFSTHD  IDFZADM
 
-2023-06-02   UJ92698
+2024-03-07   UJ94539
 ==========
-    MAC
-        $NSRWORK  $SRW
-    SRC
-        HASCPOOL  HASMJRW   HASMRDW   HASMSRW
+    EXEC
+        IOEE0020
+    HFS
+        IOEZH003
+    PROGRAM
+        IOEZHADD  IOEZHCK1  IOEZHMSG
+
+2023-09-11   UJ93419
+==========
+    MSGENU
+        IOEZHENU
 
 Base
 ==========
+    EXEC
+        IDFDE001  IDFDE002  IOEE0019
+    HFS
+        IDFDH001  IDFDH002  IOEZH001  IOEZH002
     MAC
-        $#ALCHK   $#BLD     $#BUSY    $#CAN     $#CHK     $#DISPRO
-        $#GET     $#GETHDJ  $#INO     $#JOE     $#JOTBLD  $#JOTCHK
-        $#JWEL    $#MOD     $#NEWS    $#OIN     $#POST    $#PUT     
-...
+        IOEZSMFR
+    PROC
+        IDFDP001  IOEP0004
+    SAMP
+        IDFDS001  IDFDS002  IOECLNDD  IOEIZALC  IOEIZDDD  IOEIZDIR
+        IOEIZMKD  IOEZS001  IOEZS002  IOEZS003  IOEZS004
 ```
 
-### ResolvedHfsPaths.java
+### ResolvedHfsPaths
 
 Source: [ResolvedHfsPaths.java](./java/ResolvedHfsPaths.java)
 
@@ -392,7 +387,7 @@ Ths sample resolves paths for HFS elements from the DDDEFs and relative links, a
 Typically you would expect paths to resolve to a path inside your service filesystem environment.
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar ResolvedHfsPaths.java MVS.GLOBAL.CSI MVST
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar ResolvedHfsPaths.java MVS.GLOBAL.CSI MVST
 ```
 ```
 ...
@@ -424,7 +419,7 @@ HZFS510  z/OS File System Base
 ...
 ```
 
-### HfsEntriesWithScripts.java
+### HfsEntriesWithScripts
 
 Source: [HfsEntriesWithScripts.java](./java/HfsEntriesWithScripts.java)
 
@@ -462,7 +457,7 @@ FMID: HXML1B0   Description: XML Toolkit for z/OS
 ...
 ```
 
-### ListHolddata.java
+### ListHolddata
 
 Source: [ListHolddata.java](./java/ListHolddata.java)
 
@@ -475,14 +470,14 @@ Realistically, this probably doesn't help much. But it might be a starting point
 
 ## SMP/E Information to JSON - Details
 
-### MaintenanceLevel2Json.java
+### MaintenanceLevel2Json
 
 Source: [MaintenanceLevel2Json.java](./java/MaintenanceLevel2Json.java)
 
 Create JSON with information about the maintenance level of elements in the target zone (FMID, RMID, and UMID information). Optionally specify which FMIDs should be included.
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar MaintenanceLevel2Json.java MVS.GLOBAL.CSI MVST HBB77E0
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar MaintenanceLevel2Json.java MVS.GLOBAL.CSI MVST HBB77E0
 ```
 
 ```
@@ -513,7 +508,7 @@ $ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar:/home/andrewr/java/jackson-da
 }
 ```
 
-### Holddata2Json.java
+### Holddata2Json
 
 Source: [Holddata2Json.java](./java/Holddata2Json.java)
 
@@ -522,7 +517,7 @@ Create JSON containing HOLDDATA entries for sysmods installed in the target zone
 **Note:  The comment entry is not expected to be human readable. It contains the hold data comment concatenated into one string with embedded newline characters. JSON formatting escapes the newlines, resulting in one long line.**
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar Holddata2Json.java MVS.GLOBAL.CSI MVST 2026-05-01
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar Holddata2Json.java MVS.GLOBAL.CSI MVST 2026-05-01
 ```
 
 ```
@@ -541,14 +536,14 @@ $ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar:/home/andrewr/java/jackson-da
 }
 ```
 
-### InstalledSysmods2Json.java
+### InstalledSysmods2Json
 
 Source: [InstalledSysmods2Json.java](./java/InstalledSysmods2Json.java)
 
 Create JSON information with install date for all installed sysmods in the target zone. If the sysmod has been superseded, the superseding sysmods and their install dates are included.
 
 ```
-$ java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar InstalledSysmods2Json.java MVS.GLOBAL.CSI MVST
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar InstalledSysmods2Json.java MVS.GLOBAL.CSI MVST
 ```
 
 ```

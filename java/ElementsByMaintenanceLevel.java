@@ -6,9 +6,12 @@ import com.blackhillsoftware.gimapi.*;
 import com.blackhillsoftware.gimapi.element.*;
 import com.blackhillsoftware.gimapi.entry.*;
 
+/**
+ * Report elements grouped by maintenance level i.e. RMID + UMIDs
+ */
 public class ElementsByMaintenanceLevel
 {
-    // Base last; otherwise newest maintenance first; tie-break on highest sysmod name.
+    // Sort criteria : base last; otherwise newest maintenance first; tie-break on highest sysmod name.
     private static final Comparator<MaintLevel> MAINT_LEVEL_ORDER = Comparator
             .comparing(MaintLevel::isBase)
             .thenComparing(MaintLevel::latestInstallDate, Comparator.reverseOrder())
@@ -22,11 +25,13 @@ public class ElementsByMaintenanceLevel
             return;
         }
 
+        String csi = args[0];
+        String zone = args[1];
         String fmid = args[2];
 
-        // get all elements maintenance info from the target zone
-        var elements = SmpeQuery.csi(args[0])
-            .zone(args[1])
+        // get all elements and maintenance info from the target zone
+        var elements = SmpeQuery.csi(csi)
+            .zone(zone)
             .fmid(fmid)
             .subEntries("FMID", "RMID", "UMID")
             .listElement();
@@ -38,7 +43,7 @@ public class ElementsByMaintenanceLevel
         // RMID + UMID entries. Potentially this gives a large number of
         // entries, but in practice it should be manageable.
         // Then for each Set of RMID and UMIDs (which will frequently
-        // be a single RMID value) we keep a list of
+        // be a single RMID value) we build a list of
         // elements with that combination of maintenance.
         Map<Set<String>, List<Element>> elementsByMaintLevel = new HashMap<>();
 
@@ -52,39 +57,46 @@ public class ElementsByMaintenanceLevel
         // Now we want to know the dates each sysmod was installed.
         // We combine the sets from each key into a new set to de-duplicate
         // the list of sysmods.
-        Set<String> allUpdates = new HashSet<>();
+        Set<String> updateSysmods = new HashSet<>();
         elementsByMaintLevel.keySet()
-            .forEach(key -> allUpdates.addAll(key));
+            .forEach(key -> updateSysmods.addAll(key));
 
-        // Query the list of sysmods to get install dates
-        var installDatesBySysmod = SmpeQuery.csi(args[0])
-                .zone(args[1])
+        // Query the list of sysmods to get install dates, and build a
+        // map of sysmod -> install date
+        var sysmodInstallDates = SmpeQuery.csi(csi)
+                .zone(zone)
                 .fmid(fmid)
                 .subEntries("INSTALLDATE")
-                .ename(new ArrayList<>(allUpdates))
+                .ename(new ArrayList<>(updateSysmods))
                 .listSysmod()
                 .stream()
                 .collect(Collectors.toMap(Sysmod::entryname, 
                     Sysmod::installeddate));
 
-        // For each maintenance level, build report data and print with the
-        // newest level first and Base last.
+        // For each maintenance level, 
+        // - gather the information about the maintenance level 
+        // - sort using the criteria we set up earlier
+        // - output the information
         elementsByMaintLevel.entrySet().stream()
-                .map(e -> toMaintLevel(e.getKey(), e.getValue(), fmid, installDatesBySysmod))
+                .map(maintLevelEntry -> toMaintLevel(maintLevelEntry.getKey(),
+                     maintLevelEntry.getValue(), 
+                     fmid, 
+                     sysmodInstallDates))
                 .sorted(MAINT_LEVEL_ORDER)
-                .forEach(level -> printMaintLevel(level, fmid, installDatesBySysmod));
+                .forEach(level -> printMaintLevel(level, fmid, sysmodInstallDates));
     }
 
-    // Combine the sysmod set and element list into report fields for one level.
+    // Gather some information about the maintenance level for use in 
+    // sorting etc.
     private static MaintLevel toMaintLevel(Set<String> sysmodSet, List<Element> elements,
-            String fmid, Map<String, LocalDate> installDatesBySysmod)
+            String fmid, Map<String, LocalDate> sysmodInstallDates)
     {
         // A level containing only the FMID is reported as Base.
         boolean isBase = sysmodSet.size() == 1 && sysmodSet.contains(fmid);
 
         // Used to order maintenance levels newest-first in the report.
         LocalDate latestInstall = sysmodSet.stream()
-                .map(installDatesBySysmod::get)
+                .map(sysmodInstallDates::get)
                 .max(LocalDate::compareTo)
                 .orElseThrow();
 
@@ -96,9 +108,11 @@ public class ElementsByMaintenanceLevel
         return new MaintLevel(isBase, latestInstall, sysmodSet, elements, maxSysmodName);
     }
 
-    // Print sysmods grouped by install date, then elements grouped by entry type.
+    // Print the output for elements at a specific maintenance level.
+    // First the Date and sysmod(s)
+    // then the elements by element type
     private static void printMaintLevel(MaintLevel level, String fmid,
-            Map<String, LocalDate> installDatesBySysmod)
+            Map<String, LocalDate> sysmodInstallDates)
     {
         if (level.isBase())
         {
@@ -108,7 +122,7 @@ public class ElementsByMaintenanceLevel
         {
             Map<LocalDate, List<String>> sysmodsByDate = level.sysmods().stream()
                     .filter(name -> !name.equals(fmid))
-                    .collect(Collectors.groupingBy(installDatesBySysmod::get, HashMap::new, Collectors.toList()));
+                    .collect(Collectors.groupingBy(sysmodInstallDates::get, HashMap::new, Collectors.toList()));
 
             sysmodsByDate.entrySet().stream()
                     .sorted(Map.Entry.<LocalDate, List<String>>comparingByKey().reversed())

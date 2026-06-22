@@ -1,18 +1,19 @@
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import com.blackhillsoftware.gimapi.SmpeQuery;
-import com.blackhillsoftware.gimapi.entry.Sysmod;
+import com.blackhillsoftware.gimapi.*;
+import com.blackhillsoftware.gimapi.entry.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
 
+/**
+ * Create JSON information with install date for all installed sysmods 
+ * in the target zone. If the sysmod has been superseded, 
+ * the superseding sysmods and their install dates are included.
+ */
 public class InstalledSysmods2Json
 {
     // Set up Jackson Json conversion
@@ -34,13 +35,15 @@ public class InstalledSysmods2Json
         String csi = args[0];
         String zone = args[1];
 
+        // Get a list of all installed sysmods
         List<Sysmod> allSysmods = SmpeQuery.csi(csi)
                 .zone(zone)
-                .subEntries("FMID", "INSTALLDATE", "LASTSUP", "SUPBY")
+                .subEntries("FMID", "INSTALLDATE", "LASTSUP", "SUPBY", "DELBY")
                 .listSysmod()
                 .stream()
+                .filter(s -> s.delby() == null)
                 .filter(s -> s.installeddate() != null)
-                .collect(Collectors.toList());
+                .toList();
 
         // Map installed dates by sysmod name, which we will use to 
         // look up install dates for superseding sysmods.
@@ -55,6 +58,7 @@ public class InstalledSysmods2Json
                         sysmod.entrytype(),
                         sysmod.fmid(),
                         sysmod.installeddate(),
+                        // build a list of superseding sysmods
                         supbyEntries(sysmod, installDatesByName)))
                 .toList();
 

@@ -4,7 +4,9 @@ import java.util.stream.*;
 
 import com.blackhillsoftware.gimapi.*;
 import com.blackhillsoftware.gimapi.entry.Holddata;
-
+/**
+ * Lists HOLDDATA from sysmods installed after a specified date.
+ */
 public class ListHolddata
 {
     public static void main(String[] args)
@@ -14,9 +16,14 @@ public class ListHolddata
             System.out.println("Usage: ListHolddata <global-csi> <target-zone> <YYYY-MM-DD>");
             return;
         }
+
+        String csi = args[0];
+        String zone = args[1];
+        LocalDate since = LocalDate.parse(args[2]);
         
-        var fmidDescriptions = SmpeQuery.csi(args[0])
-                .zone(args[1])
+        // Get FMID descriptions 
+        var fmidDescriptions = SmpeQuery.csi(csi)
+                .zone(zone)
                 .smodType(SysmodType.FUNCTION)
                 .subEntries("DESCRIPTION")
                 .listSysmod()
@@ -27,20 +34,22 @@ public class ListHolddata
 
         // Query sysmods installed after the specified date, 
         // and collect the sysmod names into a list.
-        var sysmods = SmpeQuery.csi(args[0])
-            .zone(args[1])
-            .installedAfter(LocalDate.parse(args[2]))
+        var sysmods = SmpeQuery.csi(csi)
+            .zone(zone)
+            .installedAfter(since)
             .listSysmod()
             .stream()
             .map(e -> e.entryname())
-            .collect(Collectors.toList());
+            .toList();
         
-        // Use the list of names to get the holddata 
-        var holdsForSysmods = SmpeQuery.csi(args[0])
+        // Use the list of sysmods to get the holddata 
+        var holdsForSysmods = SmpeQuery.csi(csi)
                 .zone(Zone.GLOBAL)
                 .ename(sysmods)
                 .listHolddata();
 
+        // Gather IPL holds and list them first, typically there are many
+        // entries saying the same thing.
         System.out.println();
         System.out.println(">>>> IPL Holds");
 
@@ -48,7 +57,7 @@ public class ListHolddata
             .filter(hold -> "IPL".equals(hold.holdreason()))
             .collect(Collectors.groupingBy(Holddata::holdfmid));
 
-        holdsForFmid(fmidDescriptions, iplholds);
+        printHoldInformation(fmidDescriptions, iplholds);
 
         System.out.println(">>>> Other Holds");
 
@@ -56,11 +65,12 @@ public class ListHolddata
             .filter(hold -> !"IPL".equals(hold.holdreason()))
             .collect(Collectors.groupingBy(Holddata::holdfmid));
 
-        holdsForFmid(fmidDescriptions, otherholds);	
+        printHoldInformation(fmidDescriptions, otherholds);	
     }
 
-    private static void holdsForFmid(Map<String, String> fmidDescriptions, Map<String, List<Holddata>> holdsByFmid) 
+    private static void printHoldInformation(Map<String, String> fmidDescriptions, Map<String, List<Holddata>> holdsByFmid) 
     {
+        // Sort and print by FMID, with FMID description followed by holddata sorted by sysmod
         holdsByFmid.entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
             .forEach(entry ->

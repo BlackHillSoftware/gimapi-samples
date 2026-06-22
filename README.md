@@ -11,6 +11,10 @@ This repository contains samples demonstrating the use of the EasyGIMAPI Java in
 
 - Development can be done off mainframe using a regular IDE, but you can't run/debug/test off mainframe.
 
+## More information
+
+For more information, visit the product page at [https://blackhillsoftware.com/easygimapi/](https://blackhillsoftware.com/easygimapi/)
+
 ## Samples
 
 See [SAMPLES.md](./SAMPLES.md) for detailed descriptions of the included samples.
@@ -22,11 +26,11 @@ so a separate compile step is not required. You can simply edit/save/run the sou
 
 The jar file must be in the Java classpath. Either specify the classpath in the java command:
 ```
-java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar ListEntry.java ...
+java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar ListEntry.java ...
 ```
 or add it to the CLASSPATH environment variable.
 ```
-export CLASSPATH=/home/andrewr/java/bhs-gimapi-0.9.1.jar
+export CLASSPATH=/home/andrewr/java/bhs-gimapi-0.9.2.jar
 ```
 
 **Note:** Java 25 requires EBCDIC source files to be tagged e.g.:
@@ -49,7 +53,7 @@ Samples are provided to demonstrate generation of JSON from SMP/E entries and in
 The JSON report samples require Jackson 3 on the classpath (`jackson-databind` and `jackson-core` 3.1.3, `jackson-annotations` 2.21). 
 
 ```
-java -cp /home/andrewr/java/bhs-gimapi-0.9.1.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar MaintenanceLevel2Json.java ...
+java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar MaintenanceLevel2Json.java ...
 ```
 
 ## Common errors

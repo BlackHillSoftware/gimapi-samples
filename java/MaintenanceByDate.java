@@ -1,12 +1,13 @@
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.blackhillsoftware.gimapi.SmpeQuery;
-import com.blackhillsoftware.gimapi.SysmodType;
+import com.blackhillsoftware.gimapi.*;
 import com.blackhillsoftware.gimapi.entry.Sysmod;
 
+/**
+ * List maintenance since a specified date, grouped by install date
+ */
 public class MaintenanceByDate
 {    
     public static void main(String[] args)
@@ -16,11 +17,14 @@ public class MaintenanceByDate
             System.out.println("Usage: MaintenanceByDate <global-csi> <target-zone> <yyyy-mm-dd>");
             return;
         }
+
+        String csi = args[0];
+        String zone = args[1];
+        LocalDate date = LocalDate.parse(args[2]);
         
-        var date = LocalDate.parse(args[2]);
-        
-        var functions = SmpeQuery.csi(args[0])
-                .zone(args[1])
+        // Get FMID descriptions for use in the report
+        var functions = SmpeQuery.csi(csi)
+                .zone(zone)
                 .smodType(SysmodType.FUNCTION)
                 .listSysmod()
                 .stream()
@@ -28,15 +32,18 @@ public class MaintenanceByDate
                         entry -> entry.entryname(),
                         entry -> entry.description() != null ? entry.description() : "",
                                 (a, b) -> !a.isEmpty() ? a : b)); // duplicate, take the first non-empty
-           
-        var byDate = SmpeQuery.csi(args[0])
-            .zone(args[1])
+        
+        // List APARs and PTFs installed since the specified date,
+        // and group by installed date
+        var byDate = SmpeQuery.csi(csi)
+            .zone(zone)
             .smodType(SysmodType.APAR, SysmodType.PTF)
             .installedAfter(date)
             .listSysmod()
             .stream()
             .collect(Collectors.groupingBy(Sysmod::installeddate));
         
+        // sort and print by install date, most recent first
         byDate.entrySet().stream()
             .sorted((a, b) -> b.getKey().compareTo(a.getKey()))
             .forEach(installDate ->
@@ -44,9 +51,11 @@ public class MaintenanceByDate
                 System.out.format("%nDate: %s%n", installDate.getKey());
                 System.out.println("================");
 
+                // group installed sysmods by fmid
                 var byFmid = installDate.getValue().stream()
                     .collect(Collectors.groupingBy(sysmod -> sysmod.fmid()));
                 
+                // print the fmid and description, followed by the list of sysmods
                 byFmid.entrySet().stream()
                     .forEach(fmidEntry ->
                     {

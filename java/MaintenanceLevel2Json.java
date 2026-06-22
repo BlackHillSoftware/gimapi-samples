@@ -1,21 +1,20 @@
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
-import com.blackhillsoftware.gimapi.SmpeQuery;
-import com.blackhillsoftware.gimapi.element.Element;
-import com.blackhillsoftware.gimapi.element.Jar;
-import com.blackhillsoftware.gimapi.element.Mac;
-import com.blackhillsoftware.gimapi.element.Mod;
-import com.blackhillsoftware.gimapi.element.Src;
+import com.blackhillsoftware.gimapi.*;
+import com.blackhillsoftware.gimapi.element.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
 
+/**
+ * Create JSON with information about the maintenance level of elements 
+ * in the target zone (FMID, RMID, and UMID information). 
+ * Optionally specify which FMIDs should be included.
+ */
 public class MaintenanceLevel2Json
 {
+    // Jackson ObjectMapper for writing JSON
     private static final ObjectMapper MAPPER = JsonMapper.builder()
             .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
             .enable(SerializationFeature.INDENT_OUTPUT)
@@ -35,18 +34,21 @@ public class MaintenanceLevel2Json
         String zone = args[1];
         List<String> fmids = parseFmids(args, 2);
 
-        var query = SmpeQuery.csi(csi).zone(zone);
+        // build the query, add fmids if specified
+        var query = SmpeQuery.csi(csi)
+            .zone(zone)
+            .subEntries("FMID", "RMID", "UMID");
         if (!fmids.isEmpty())
         {
             query = query.fmid(fmids);
         }
 
+        // Run the query to get the list of elements
+        // and create the ElementEntry with the information
+        // to be included in JSON
         List<ElementEntry> elements = query
-                .subEntries("FMID", "RMID", "UMID")
                 .listElement()
                 .stream()
-                .sorted(Comparator.comparing(Element::entrytype)
-                        .thenComparing(Element::entryname))
                 .map(element -> new ElementEntry(
                         element.entryname(),
                         element.entrytype(),
@@ -55,10 +57,15 @@ public class MaintenanceLevel2Json
                         umid(element)))
                 .toList();
 
-        var report = new MaintenanceReport(csi, zone, elements);
+        // wrap the list with information about the CSI and zone
+        var report = new ReportInformation(csi, zone, elements);
+
+        // Generate and write the json
         System.out.println(MAPPER.writeValueAsString(report));
     }
 
+    // get umid information if this element is a type
+    // that has umid, otherwise return an empty list
     private static List<String> umid(Element element)
     {
         if (element instanceof Mod mod)
@@ -80,6 +87,9 @@ public class MaintenanceLevel2Json
         return List.of();
     }
 
+    // Allow the list of FMIDs to be separated by commas and/or spaces.
+    // The argument list was already parsed by spaces, split further 
+    // by commas if present.
     private static List<String> parseFmids(String[] args, int from)
     {
         List<String> fmids = new ArrayList<>();
@@ -106,7 +116,7 @@ public class MaintenanceLevel2Json
     {
     }
 
-    record MaintenanceReport(
+    record ReportInformation(
             String csi,
             String zone,
             List<ElementEntry> elements)

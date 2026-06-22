@@ -6,6 +6,9 @@ import com.blackhillsoftware.gimapi.SysmodType;
 import com.blackhillsoftware.gimapi.Zone;
 import com.blackhillsoftware.gimapi.entry.*;
 
+/**
+ * List the feature names, FMIDs and FMID descriptions known to SMP/E.
+ */
 public class ListFeatures
 {    
     public static void main(String[] args)
@@ -15,8 +18,11 @@ public class ListFeatures
             System.out.println("Usage: ListFeatures <global-csi>");
             return;
         }
+
+        String csi = args[0];
+
         // get all features from the global zone
-        var features = SmpeQuery.csi(args[0])
+        var features = SmpeQuery.csi(csi)
             .zone(Zone.GLOBAL)
             .listFeature();
         
@@ -24,7 +30,7 @@ public class ListFeatures
         // from name to function description.
         // For some reason we don't seem to get a description
         // from the global zone sysmod
-        var descriptions = SmpeQuery.csi(args[0])
+        var descriptions = SmpeQuery.csi(csi)
                 .zone(Zone.ALL)
                 .smodType(SysmodType.FUNCTION)
                 .listSysmod()

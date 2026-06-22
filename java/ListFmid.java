@@ -3,6 +3,9 @@ import java.util.Comparator;
 import com.blackhillsoftware.gimapi.*;
 import com.blackhillsoftware.gimapi.entry.*;
 
+/**
+ * List FMIDs, installed date and description for FMIDs installed in a target zone.
+ */
 public class ListFmid 
 {
     public static void main(String[] args)
@@ -12,9 +15,13 @@ public class ListFmid
             System.out.println("Usage: ListFmid <global-csi> <target-zone>");
             return;
         }
+
+        String csi = args[0];
+        String zone = args[1];
+
         // get all function sysmods from the target zone
-        var functions = SmpeQuery.csi(args[0])
-            .zone(args[1])
+        var functions = SmpeQuery.csi(csi)
+            .zone(zone)
             .smodType(SysmodType.FUNCTION)
             .listSysmod();
         
@@ -22,6 +29,7 @@ public class ListFmid
         functions.stream()
         	.filter(entry -> entry.installeddate() != null)
         	.filter(entry -> entry.lastsup() == null)
+        	.filter(entry -> entry.delby() == null)
             .sorted(Comparator.comparing(Sysmod::entryname))
             .forEachOrdered(fmid -> 
             {

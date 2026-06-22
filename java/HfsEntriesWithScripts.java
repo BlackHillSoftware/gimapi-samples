@@ -7,6 +7,9 @@ import com.blackhillsoftware.gimapi.element.*;
 import com.blackhillsoftware.gimapi.element.HfsElement;
 import com.blackhillsoftware.gimapi.entry.*;
 
+/**
+ * List HFS entries that have scripts defined to be run during installation.
+ */
 public class HfsEntriesWithScripts
 {    
     public static void main(String[] args)
@@ -16,9 +19,13 @@ public class HfsEntriesWithScripts
             System.out.println("Usage: HfsEntriesWithScripts <global-csi> <target-zone>");
             return;
         }
+
+        String csi = args[0];
+        String zone = args[1];
         
-        var functions = SmpeQuery.csi(args[0])
-                .zone(args[1])
+        // Get the description of each function sysmod for use later in the report
+        var functions = SmpeQuery.csi(csi)
+                .zone(zone)
                 .smodType(SysmodType.FUNCTION)
                 .subEntries("DESCRIPTION")
                 .listSysmod()
@@ -27,36 +34,41 @@ public class HfsEntriesWithScripts
                         entry -> entry.entryname(),
                         entry -> entry.description() != null ? entry.description() : ""));
         
-        var dddefs = SmpeQuery.csi(args[0])
-               .zone(args[1])
+        // Get the DDDEFs to use to build the file names                
+        var dddefs = SmpeQuery.csi(csi)
+            .zone(zone)
             .listDddef()
             .stream()
             .collect(Collectors.toMap(Dddef::entryname, dddef -> dddef));
         
-        var scripts = SmpeQuery.csi(args[0])
-                   .zone(args[1])
-                .listShellscr()
-                .stream()
-                .collect(Collectors.toMap(Shellscr::entryname, shellscr -> shellscr));        
+        // Get shell script elements and map them by entry name    
+        var scripts = SmpeQuery.csi(csi)
+            .zone(zone)
+            .listShellscr()
+            .stream()
+            .collect(Collectors.toMap(Shellscr::entryname, shellscr -> shellscr));        
         
-        var entries = SmpeQuery.csi(args[0])
-            .zone(args[1])
+        // Get elements with a shell script defined and group by fmid
+        var entries = SmpeQuery.csi(csi)
+            .zone(zone)
             .filter("SHSCRIPT!=''")
-               .subEntries("FMID", "SYSLIB", "SHSCRIPT")         	
+            .subEntries("FMID", "SYSLIB", "SHSCRIPT")         	
             .listElement()
-               .stream()
-               .filter(entry -> (entry instanceof HfsElement))
-               .map(entry -> (HfsElement) entry)
+            .stream()
+            .filter(entry -> (entry instanceof HfsElement))
+            .map(entry -> (HfsElement) entry)
             .collect(Collectors.groupingBy(Element::fmid));
 
+        // Report elements, grouped by fmid
+        // For each element, resolve the paths from the DDDEF
         entries.entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
-            .forEach(entry ->
+            .forEach(fmidEntry ->
             {
                 System.out.format("FMID: %-8s  Description: %s%n", 
-                        entry.getKey(), functions.get(entry.getKey()));
+                        fmidEntry.getKey(), functions.get(fmidEntry.getKey()));
                 
-                entry.getValue().stream()
+                fmidEntry.getValue().stream()
                     .forEach(element ->
                     {
                         System.out.format("    Element: %-23s  PATH: %s%n", 
@@ -72,6 +84,8 @@ public class HfsEntriesWithScripts
             });
     }
     
+    // Resolve a path by combining the DDDEF path and the
+    // relative path, and normalize the result (remove ../ etc.)
     private static Path resolvePath(Dddef dddef, String path) {
         Path result = Paths.get(dddef.path(), path);
         result = result.normalize();
