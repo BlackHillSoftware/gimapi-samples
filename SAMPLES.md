@@ -20,6 +20,7 @@ See [README.md](./README.md) for more detail on how to run the programs.
 | **SMP/E Information to JSON** | |
 | [MaintenanceLevel2Json](#maintenancelevel2json) | Create JSON with information about the maintenance level of elements in the target zone. |
 | [Holddata2Json](#holddata2json) | Create JSON with Holddata information for sysmods installed after a specified date. |
+| [HolddataAISummary](#holddataaisummary) | Query holddata for sysmods installed after a specified date and summarize using OpenAI. |
 | [InstalledSysmods2Json](#installedsysmods2json) | Create JSON with information on all sysmods installed in the target zone. Superseded sysmods show superseding sysmods and the dates they were installed. |
 
 ## Details of Samples
@@ -535,6 +536,28 @@ $ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar:/home/andrewr/java/jackson-da
   }, ... ]
 }
 ```
+
+### HolddataAISummary
+
+Source: [HolddataAISummary.java](./java/HolddataAISummary.java)
+
+Query holddata for sysmods installed in the target zone after a specified date and send the JSON to OpenAI to generate a summary of the holddata.
+
+Requests use `store: false` so holddata and the generated summary are not retained on OpenAI servers.
+
+Requires outbound HTTPS from z/OS to `api.openai.com` (firewall, proxy, or AT-TLS as applicable to your environment).
+
+Set the `OPENAI_API_KEY` environment variable before running. The API key is never passed on the command line.
+
+If the holddata report is very large (many sysmods or long comment fields), the OpenAI request may fail with a context-length error. Reduce the date range to narrow the sysmod list as a first workaround.
+
+```
+$ export OPENAI_API_KEY=sk-...
+$ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar \
+    HolddataAISummary.java MVS.GLOBAL.CSI MVST 2026-05-01
+```
+
+Optional fourth argument selects the OpenAI model (default: `gpt-5.5`):
 
 ### InstalledSysmods2Json
 

@@ -33,6 +33,17 @@ or add it to the CLASSPATH environment variable.
 export CLASSPATH=/home/andrewr/java/bhs-gimapi-0.9.2.jar
 ```
 
+If all dependency JARs are copied to a single directory e.g. `./java/lib`, you can use a classpath wildcard instead of listing each JAR:
+```
+java -cp './java/lib/*' ListEntry.java ...
+```
+or:
+```
+export CLASSPATH='./java/lib/*'
+```
+The quotes stop the shell expanding `*` before Java sees it. Every JAR in the directory is included; for JSON samples, copy the Jackson JARs there as well as `bhs-gimapi`. 
+Beware of problems caused by different versions of the same jar in the directory.
+
 **Note:** Java 25 requires EBCDIC source files to be tagged e.g.:
 ```
 chtag -t -c IBM1047 ListEntry.java
@@ -45,6 +56,7 @@ If you build this project using Maven, dependencies including the bhs-gimapi jar
 ```
 mvn clean package
 ```
+Copy the contents of `target/lib` to `./java/lib` (or another directory) on z/OS, then run samples with `-cp './java/lib/*'` as shown above.
 
 ## JSON Generation
 
