@@ -20,7 +20,7 @@ See [README.md](./README.md) for more detail on how to run the programs.
 | **SMP/E Information to JSON** | |
 | [MaintenanceLevel2Json](#maintenancelevel2json) | Create JSON with information about the maintenance level of elements in the target zone. |
 | [Holddata2Json](#holddata2json) | Create JSON with Holddata information for sysmods installed after a specified date. |
-| [HolddataAISummary](#holddataaisummary) | Query holddata for sysmods installed after a specified date and summarize usingthe OpenAI. |
+| [HolddataAISummary](#holddataaisummary) | Query holddata for sysmods installed after a specified date and summarize using OpenAI. |
 | [InstalledSysmods2Json](#installedsysmods2json) | Create JSON with information on all sysmods installed in the target zone. Superseded sysmods show superseding sysmods and the dates they were installed. |
 
 ## Details of Samples
