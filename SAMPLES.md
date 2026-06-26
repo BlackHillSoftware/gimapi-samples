@@ -549,8 +549,6 @@ Requires outbound HTTPS from z/OS to `api.openai.com` (firewall, proxy, or AT-TL
 
 Set the `OPENAI_API_KEY` environment variable before running. The API key is never passed on the command line.
 
-If the holddata report is very large (many sysmods or long comment fields), the OpenAI request may fail with a context-length error. Reduce the date range to narrow the sysmod list as a first workaround.
-
 ```
 $ export OPENAI_API_KEY=sk-...
 $ java -cp /home/andrewr/java/bhs-gimapi-0.9.2.jar:/home/andrewr/java/jackson-databind-3.1.3.jar:/home/andrewr/java/jackson-core-3.1.3.jar:/home/andrewr/java/jackson-annotations-2.21.jar \
